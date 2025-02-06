@@ -54,7 +54,10 @@
                 running: false,
                 startTime: null,
                 updateDisplay: function() {
-                    document.getElementById(`time${id}`).textContent = (this.time / 100).toFixed(2);
+                    let minutes = Math.floor(this.time / 6000);
+                    let seconds = Math.floor((this.time % 6000) / 100);
+                    let milliseconds = this.time % 100;
+                    document.getElementById(`time${id}`).textContent = `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
                 },
                 start: function() {
                     if (!this.running) {
@@ -90,7 +93,7 @@
                 div.innerHTML = `
                     <input type="text" placeholder="Name" id="name${i}"><br><br>
                     <textarea placeholder="Notes" id="notes${i}"></textarea><br><br>
-                    <h2 id="time${i}">0.00</h2>
+                    <h2 id="time${i}">0:00.00</h2>
                     <p id="start-time${i}" style="font-size: 0.9em; color: #aaa;"></p>
                     <button onclick="stopwatches[${i - 1}].start()">Start</button>
                     <button onclick="stopwatches[${i - 1}].stop()">Stop</button>
