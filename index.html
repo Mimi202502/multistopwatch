@@ -49,34 +49,42 @@
     <script>
         function createStopwatch(id) {
             return {
-                interval: null,
-                time: 0,
-                running: false,
                 startTime: null,
+                elapsedTime: 0,
+                running: false,
                 updateDisplay: function() {
-                    let minutes = Math.floor(this.time / 6000);
-                    let seconds = Math.floor((this.time % 6000) / 100);
-                    let milliseconds = this.time % 100;
+                    let totalTime = this.elapsedTime;
+                    if (this.running) {
+                        totalTime += Date.now() - this.startTime;
+                    }
+                    let minutes = Math.floor(totalTime / 60000);
+                    let seconds = Math.floor((totalTime % 60000) / 1000);
+                    let milliseconds = Math.floor((totalTime % 1000) / 10);
                     document.getElementById(`time${id}`).textContent = `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
                 },
                 start: function() {
                     if (!this.running) {
                         this.running = true;
-                        this.startTime = new Date().toLocaleTimeString();
-                        document.getElementById(`start-time${id}`).textContent = `Started at: ${this.startTime}`;
-                        this.interval = setInterval(() => {
-                            this.time++;
-                            this.updateDisplay();
-                        }, 10);
+                        this.startTime = Date.now();
+                        document.getElementById(`start-time${id}`).textContent = `Started at: ${new Date().toLocaleTimeString()}`;
+                        this.timer = requestAnimationFrame(() => this.tick());
+                    }
+                },
+                tick: function() {
+                    if (this.running) {
+                        this.updateDisplay();
+                        requestAnimationFrame(() => this.tick());
                     }
                 },
                 stop: function() {
-                    this.running = false;
-                    clearInterval(this.interval);
+                    if (this.running) {
+                        this.elapsedTime += Date.now() - this.startTime;
+                        this.running = false;
+                    }
                 },
                 reset: function() {
                     this.stop();
-                    this.time = 0;
+                    this.elapsedTime = 0;
                     this.startTime = null;
                     this.updateDisplay();
                     document.getElementById(`start-time${id}`).textContent = "";
